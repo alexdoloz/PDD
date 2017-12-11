@@ -4,13 +4,8 @@
 <context>
     <name>main</name>
     <message>
-        <location filename="../assets/main.qml" line="24"/>
+        <location filename="../assets/main.qml" line="25"/>
         <source>Tab 1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../assets/main.qml" line="28"/>
-        <source>First tab</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

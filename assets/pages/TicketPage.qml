@@ -3,107 +3,132 @@ import "../components"
 
 
 Page {
+    property variant ticket: null
+    property int currentQuestionIndex: -1 
+    property variant currentQuestion: {}
+    
+    onTicketChanged: {
+        currentQuestionIndex = 0
+    }
+    
+    onCurrentQuestionIndexChanged: {
+        //console.log(JSON.stringify(ticket.questions));
+        var nextQuestion = ticket.questions[currentQuestionIndex];
+        console.log(JSON.stringify(nextQuestion));
+        currentQuestion = nextQuestion;
+
+    }
+    
+    onCurrentQuestionChanged: {
+        questionLabel.text = currentQuestion.question;
+        questionImageView.visible = currentQuestion.hasImage;
+        choiceSelectionContainer.removeAll();
+        var choiceSelection = choiceSelectionDefinition.createObject();
+        choiceSelection.options = currentQuestion.answers;
+        choiceSelectionContainer.add(choiceSelection);
+     //   choiceSelection.options = currentQuestion.answers;
+    }
+    
+    
+    
     actions: [
         ActionItem {
             title: "Назад"
+            imageSource: "asset:///icons/left.png"
+            property bool canMove: currentQuestionIndex > 0
             ActionBar.placement: ActionBarPlacement.OnBar
+            enabled: canMove
+            onTriggered: {
+                currentQuestionIndex--; 
+            }
         },
         ActionItem {
             title: "Вперед"
+            imageSource: "asset:///icons/right.png"
+            property bool canMove: currentQuestionIndex < ticket.questions.length - 1
+            enabled: canMove
             ActionBar.placement: ActionBarPlacement.OnBar
+            onTriggered: {
+                currentQuestionIndex++;
+            }
         },
         ActionItem {
             title: "Завершить"
-            ActionBar.placement: ActionBarPlacement.Signature
+            imageSource: "asset:///icons/done.png"
+            ActionBar.placement: ActionBarPlacement.InOverflow
+            onTriggered: {
+                if (choiceSelection.selectedOptionIndex == currentQuestion.correctAnswerIndex) {
+                    console.log("Правильно")
+                } else {
+                    console.log("Неправильно")
+                }
+            }
         }
     ]
+    
+    function leftpadded(number) {
+        if (number < 10) {
+            return "0" + number;
+        }    
+        return "" + number;
+    }
+    
+    function imagePath(ticketIndex, questionIndex) {
+        return "asset:///images/PDD/" + leftpadded(ticketIndex) + "-" + leftpadded(questionIndex) + ".jpg";
+    }
+    
     titleBar: TitleBar {
-        title: "Билет 1, вопрос 2"
-        visibility: ChromeVisibility.Overlay
+        title: "Билет " + ticket.ticketIndex + ", Вопрос " + (currentQuestionIndex + 1);
     }
     ScrollView {
+        visible: !!ticket 
+        implicitLayoutAnimationsEnabled: false
         Container {
+            bottomPadding: 48.0
+
             ImageView {
-                imageSource: "asset:///images/PDD/01-02.jpg"
-                scalingMethod: ScalingMethod.AspectFill
+                id: questionImageView
+                imageSource: imagePath(ticket.ticketIndex, currentQuestionIndex + 1)
+                scalingMethod: ScalingMethod.AspectFit
+                horizontalAlignment: HorizontalAlignment.Fill
                 preferredWidth: 1440
-                preferredHeight: 0.5 * preferredWidth
-            }
-            Label {
-                text: "Разрешен ли Вам съезд на дорогу с грунтовым покрытием?"
-                textStyle.fontStyle: FontStyle.Default
-                textStyle.fontWeight: FontWeight.Bold
-                textStyle.fontSize: FontSize.Large
-                horizontalAlignment: HorizontalAlignment.Center
-                multiline: true
-                textStyle.textAlign: TextAlign.Center
-                leftMargin: 40.0
-                rightMargin: 40.0
-                layoutProperties: StackLayoutProperties {
-                    spaceQuota: -1
-                }
-            
-            }
-            Divider {
-            
-            }
-            /*
-            Container {
-                layout: StackLayout {
-                    orientation: LayoutOrientation.LeftToRight
-                }
-                leftPadding: 30.0
-                rightPadding: 30.0
-                RadioGroup {
-                    Option {}
-                    layoutProperties: StackLayoutProperties {
-                        spaceQuota: 1.0
-                    }
-                }
-                Label {
-                    verticalAlignment: VerticalAlignment.Center
-                    text: "Разрешен только при технической неисправности транспортного средства."
-                    layoutProperties: StackLayoutProperties {
-                        spaceQuota: -1.0
-                    }
-                    textStyle.textAlign: TextAlign.Left
-                    multiline: true
-                    textStyle.fontSize: FontSize.Medium
-                    rightMargin: 40.0
-                    preferredWidth: 1440
-                }
+                visible: true //currentQuestion.hasImage
             }
             Container {
-                layout: StackLayout {
-                    orientation: LayoutOrientation.LeftToRight
-                }
-                leftPadding: 30.0
-                rightPadding: 30.0
-                topMargin: 20.0
-                RadioGroup {
-                    verticalAlignment: VerticalAlignment.Center
-                    Option {}
-                    layoutProperties: StackLayoutProperties {
-                        spaceQuota: 1.0
-                    }
-                }
+                leftPadding: 24.0
+                rightPadding: 24.0
+                topPadding: 24.0
                 Label {
-                    text: "Разрешен."
-                    verticalAlignment: VerticalAlignment.Center
-                    layoutProperties: StackLayoutProperties {
-                        spaceQuota: -1.0
-                    }
-                    textStyle.textAlign: TextAlign.Left
+                    id: questionLabel
+                    text: "question" // currentQuestion.question
+                    textStyle.fontStyle: FontStyle.Default
+                    textStyle.fontWeight: FontWeight.Bold
+                    textStyle.fontSize: FontSize.Large
+                    horizontalAlignment: HorizontalAlignment.Center
                     multiline: true
-                    textStyle.fontSize: FontSize.Medium
+                    textStyle.textAlign: TextAlign.Center
+                    leftMargin: 40.0
                     rightMargin: 40.0
-                    preferredWidth: 1440
+                    layoutProperties: StackLayoutProperties {
+                        spaceQuota: -1
+                    }
+                    
                 }
-            }*/
-            ChoiceSelection {
-                options: ["Разрешен.", "Разрешен только при технической неисправности транспортного средства.", "Запрещен."]
+                Divider {}
+                Container {
+                    id: choiceSelectionContainer
+                    attachedObjects: [
+                        ComponentDefinition {
+                            id: choiceSelectionDefinition
+                            ChoiceSelection {
+                            }
+                        }
+                    ]
+                    leftPadding: 16.0
+                    rightPadding: 16.0
+                }
             }
         }
     }
-    
+
 }

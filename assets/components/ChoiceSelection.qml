@@ -4,25 +4,36 @@ import bb.cascades 1.4
 Container {
     id: choiceSelection
     property variant options
-    property variant selectedOptionIndex
-    
-    property variant choices
+    property int selectedOptionIndex
+    property variant choices: []
     
     onOptionsChanged: {
+     //   console.log("Options changed: ", JSON.stringify(options));
         choiceSelection.removeAll();
-        choices = [];
+        
+    //    choices = new Array();
+        var localChoices = [];
         for (var i = 0; i < options.length; i++) {
             var option = options[i];
-            var choice = choiceDefinition.createObject(choiceSelection);
+            var choice = choiceDefinition.createObject();
             choice.text = option;
             choice.index = i;
-            choices.push(choice);
+          //  console.log(choice);
             choiceSelection.add(choice);
+            
+            localChoices.push(choice);
+          //  console.log(localChoices.length);
+
         }
+        choices = localChoices;
+        selectedOptionIndex = -1
     }
     
     onSelectedOptionIndexChanged: {
+    //    console.log("Selected index changed: ", selectedOptionIndex);
+      //  console.log(JSON.stringify(choiceSelection.controls));
         choices.forEach(function(choice, index) {
+        //    console.log(choice.index, index, choice.text, index == selectedOptionIndex);
             choice.selected = (index == selectedOptionIndex) 
         })
     }
@@ -32,9 +43,14 @@ Container {
             id: choiceDefinition
             Choice {
                 property int index
+                
                 onSelectedChanged: {
-                    choiceSelection.selectedOptionIndex = index
+                    if (selected) {
+                        selectedOptionIndex = index    
+                    }
                 }
+                topMargin: 12.0
+                bottomMargin: 12.0
             }
         }
     ]

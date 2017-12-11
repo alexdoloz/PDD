@@ -15,6 +15,7 @@
  */
 
 import bb.cascades 1.4
+import bb.data 1.0
 import "pages/"
 
 TabbedPane {
@@ -22,18 +23,33 @@ TabbedPane {
     Tab { //First tab
         // Localized text with the dynamic translation and locale updates support
         title: qsTr("Tab 1") + Retranslate.onLocaleOrLanguageChanged
-        Page {
-            Container {
-                Label {
-                    text: qsTr("First tab") + Retranslate.onLocaleOrLanguageChanged
-                }
-            }
+        ChallengePage {
+            
         }
     } //End of first tab
     Tab { //Second tab
         title: "Билеты" + Retranslate.onLocaleOrLanguageChanged
+        
+        attachedObjects: [
+            DataSource {
+                id: ticketDataSource
+                source: "asset:///resources/tickets.json"
+                onDataLoaded: {
+                    //var itemIndex = 1;
+                    //var itemIndex = 2;
+                    //var itemIndex = 3;
+                    var itemIndex = Math.floor(Math.random() * data.length);
+                    var item = data[itemIndex];
+                    ticketPage.ticket = item;
+                }
+            }
+        ]
         TicketPage {
-            
+            id: ticketPage
+            onCreationCompleted: {
+                ticketDataSource.load();
+                
+            }
         }
     } //End of second tab
 }
